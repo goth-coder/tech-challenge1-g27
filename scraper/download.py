@@ -1,45 +1,60 @@
-import os
-import requests
+import os 
+import aiohttp
+from .constants import BASE_URL, DEST_FOLDER
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
+from datetime import datetime
+from db.database import database
+from db.models import FileRecord
+ 
 
-BASE_URL = "http://vitibrasil.cnpuv.embrapa.br/download/"
-DEST_FOLDER = "embrapa_files"
+async def download_all_files():
+    async with aiohttp.ClientSession() as session:
+        try:
+            async with session.get(BASE_URL) as response:
+                if response.status != 200:
+                    return {"error": f"Site unavailable (status code {response.status})"}
 
-def download_all_files():
-    os.makedirs(DEST_FOLDER, exist_ok=True)
+                html = await response.text()
+                soup = BeautifulSoup(html, "html.parser")
+                links = soup.find_all("a")
 
-    try:
-        response = requests.get(BASE_URL, timeout=10)
+                results = []
 
-        # Verifies if HTTP response is 200 (OK)
-        if response.status_code != 200:
-            print(f"⚠️ Site responded with status {response.status_code}")
-            return f"Failed to access site: status code {response.status_code}"
+                for link in links:
+                    href = link.get("href")
+                    is_valid = href.endswith(".csv") and not href.startswith("?") and not href.startswith("#")
+                    if href and is_valid:
+                        file_url = BASE_URL + href
+                        filename = os.path.basename(href)
+                        file_path = os.path.join(DEST_FOLDER, filename)
 
-    except requests.exceptions.RequestException as e:
-        print(f"❌ Connection error: {e}")
-        return "Failed to connect. Site may be offline or unreachable."
-    
-    # Continues if the connection is successful
-    soup = BeautifulSoup(response.text, "html.parser")
+                        try:
+                            async with session.get(file_url) as file_response:
+                                if file_response.status == 200:
+                                    with open(file_path, "wb") as f:
+                                        f.write(await file_response.read())
 
-    for link in soup.find_all("a", href=True):
-        file_url = urljoin(BASE_URL, link["href"])
-        if file_url.endswith(".csv"):
-            file_name = file_url.split("/")[-1]
-            file_path = os.path.join(DEST_FOLDER, file_name)
-            
-            try:
-                print(f"⬇️  Downloading {file_name}...")
-                file_response = requests.get(file_url)
-                with open(file_path, "wb") as f:
-                    f.write(file_response.content)
-            except requests.exceptions.RequestException as e:
-                print(f"❌ Failed to download {file_name}: {e}")
-                continue
-    
-    return f"✅ Download completed. Files saved to '{DEST_FOLDER}/'"
+                                    # Salvar metadados no banco
+                                    query = FileRecord.__table__.insert().values(
+                                        filename=filename,
+                                        url=file_url,
+                                        downloaded_at=datetime.utcnow(),
+                                        file_type=filename.split('.')[-1],
+                                        status="success"
+                                    )
+                                    await database.execute(query)
 
-if __name__ == "__main__":
-    download_all_files()
+                                    results.append({"file": filename, "status": "success"})
+
+                                else:
+                                    results.append({"file": filename, "status": f"error {file_response.status}"})
+
+                        except Exception as e:
+                            results.append({"file": filename, "status": f"error: {str(e)}"})
+
+                return results
+
+        except Exception as e:
+            return {"error": f"Failed to fetch page: {str(e)}"}
+ 

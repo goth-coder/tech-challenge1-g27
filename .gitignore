@@ -9,3 +9,6 @@ __pycache__/
  
 # Diretório onde arquivos da Embrapa são salvos
 embrapa_files/ 
+
+# Global variables
+.env

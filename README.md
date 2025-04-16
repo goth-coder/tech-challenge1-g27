@@ -65,8 +65,8 @@ Triggers the download of files from EMBRAPA.
 
 ## 🧪 Coming Soon
 
-- [ ] Endpoint to list available files  
-- [ ] Integration with database
+- [X] Endpoint to list available files  
+- [ ] Integration with Postgres database
 
 ---
 
