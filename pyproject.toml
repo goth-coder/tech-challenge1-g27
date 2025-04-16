@@ -1,0 +1,25 @@
+[project]
+name = "tech-challenge1-g27"
+version = "0.1.0"
+description = "Primeira tech challenge do grupo G27, com objetivo de criar uma API para consultar dados da EMBRAPA para alimentar uma base de dados que futuramente será usada para um modelo de Machine Learning"
+authors = [
+    {name = "Victor Santos",email = "vlsoexecutivo@gmail.com"}
+]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "requests (>=2.32.3,<3.0.0)",
+    "beautifulsoup4 (>=4.13.4,<5.0.0)",
+    "fastapi (>=0.115.12,<0.116.0)",
+    "uvicorn (>=0.34.1,<0.35.0)"
+]
+
+[tool.poetry]
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.5"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"

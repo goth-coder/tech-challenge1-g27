@@ -1,0 +1,11 @@
+# Ambiente virtual Python
+.venv/
+
+# Versão do Python (pyenv)
+.python-version
+
+# Arquivos comuns ignoráveis em projetos Python
+__pycache__/
+ 
+# Diretório onde arquivos da Embrapa são salvos
+embrapa_files/ 
