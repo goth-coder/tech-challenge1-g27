@@ -7,6 +7,7 @@ A simple FastAPI application that downloads datasets from [EMBRAPA's Vitibrasil 
 ## 🚀 Features
 
 - ✅ Download all `.csv` files from EMBRAPA
+- 🧾 Log downloaded file metadata into a Postgres database
 - 🌐 Simple HTTP API built with FastAPI
 - 🛡️ Handles connection errors (e.g., offline site)
 - 📂 Saves files in a dedicated local directory (`embrapa_files/`)
@@ -21,6 +22,7 @@ A simple FastAPI application that downloads datasets from [EMBRAPA's Vitibrasil 
 - BeautifulSoup4
 - Uvicorn (for dev server)
 - Poetry (for dependency management)
+- Databases + asyncpg (PostgreSQL client)
 
 ---
 
@@ -33,19 +35,29 @@ git clone https://github.com/seu-usuario/tech-challenge1-g27.git
 cd tech-challenge1-g27
 ```
 
-### 2. Install dependencies with Poetry
+### 2. Create a `.env` file
+
+Add a `.env` file in the project root with the following variable:
+
+```env
+DATABASE_URL=postgresql://<user>:<password>@<host>:<port>/<db_name>
+```
+
+You can get this from platforms like Render or other PostgreSQL providers.
+
+### 3. Install dependencies with Poetry
 
 ```bash
 poetry install
 ```
 
-### 3. Activate the virtual environment
+### 4. Activate the virtual environment
 
 ```bash
 poetry shell
 ```
 
-### 4. Run the API
+### 5. Run the API
 
 ```bash
 uvicorn app:app --reload
@@ -59,14 +71,33 @@ uvicorn app:app --reload
 Basic welcome route.
 
 ### `POST /download`
-Triggers the download of files from EMBRAPA.
+🔽 Triggers the download of all available `.csv` files from EMBRAPA's Vitibrasil portal.
 
+- ✅ Saves the files locally in the `embrapa_files/` folder  
+- 🧾 Logs metadata into a PostgreSQL database
+
+### `GET /files`
+📂 Lists all files currently saved in the `embrapa_files/` directory.
+
+### `GET /files/{filename}`
+📥 Downloads a specific file from local storage.
+
+- 🔍 Returns `404` if the file is not found.
+
+### `GET /filesdb`
+🧾 Lists metadata of all downloaded files, as stored in the database.
+
+- 📌 Sorted by download time (most recent first)
+
+### `GET /health`
+⚙️ Optional health check (if exposed) to verify if the database connection is operational.
 ---
 
 ## 🧪 Coming Soon
 
 - [X] Endpoint to list available files  
-- [ ] Integration with Postgres database
+- [X] Integration with Postgres database
+- [ ] Integration with task scheduling or Celery for automatic updates
 
 ---
 

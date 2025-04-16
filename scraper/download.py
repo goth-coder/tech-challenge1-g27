@@ -1,8 +1,7 @@
 import os 
 import aiohttp
 from .constants import BASE_URL, DEST_FOLDER
-from bs4 import BeautifulSoup
-from urllib.parse import urljoin
+from bs4 import BeautifulSoup 
 from datetime import datetime
 from db.database import database
 from db.models import FileRecord
