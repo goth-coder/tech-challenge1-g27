@@ -5,7 +5,10 @@ from fastapi.responses import FileResponse
 from fastapi.exceptions import HTTPException
 from db.database import database
 from db.models import FileRecord
+from dotenv import load_dotenv
 
+load_dotenv()
+WIPE_ON_SHUTDOWN = os.getenv("WIPE_ON_SHUTDOWN", "False").lower() == "true"
 app = FastAPI()
 
 
@@ -42,6 +45,8 @@ async def startup():
 
 @app.on_event("shutdown")
 async def shutdown():
+    if WIPE_ON_SHUTDOWN:
+        await database.execute("DELETE FROM files")
     await database.disconnect()
 
 

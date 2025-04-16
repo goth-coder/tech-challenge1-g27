@@ -94,10 +94,17 @@ Basic welcome route.
 ---
 
 ## 🧪 Coming Soon
-
+- [X] Download all files from EMBRAPA's Vitibrasil portal
+- [X] Download all files from EMBRAPA's Vitibrasil portal (async)
+- [X] Download all files from EMBRAPA's Vitibrasil portal (async with progress bar and status handling)
 - [X] Endpoint to list available files  
-- [X] Integration with Postgres database
+- [X] Integration with Postgres database (metadata storage)
 - [ ] Integration with task scheduling or Celery for automatic updates
+- [ ] File Preview in the Browser
+- [ ] Define structured Pydantic models
+- [ ] DataFrame Integration
+- [ ] Integration with Postgres database (tables storage)
+- [ ] Data Cleaning and Preprocessing
 
 ---
 
