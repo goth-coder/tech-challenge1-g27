@@ -1,28 +1,29 @@
 # 📊 EMBRAPA Data Downloader API
 
-A simple FastAPI application that downloads datasets from [EMBRAPA's Vitibrasil portal](http://vitibrasil.cnpuv.embrapa.br/download/) and stores them locally for further use in machine learning pipelines. Used as a tech challenge for the [FIAP Machine Learning Engineering](https://postech.fiap.com.br/curso/machine-learning-engineering/) program.
+A simple FastAPI application that downloads datasets from [EMBRAPA's Vitibrasil portal](http://vitibrasil.cnpuv.embrapa.br/download/) and stores them locally for further use in machine learning pipelines. Developed as part of the [FIAP Machine Learning Engineering](https://postech.fiap.com.br/curso/machine-learning-engineering/) program.
 
 ---
 
 ## 🚀 Features
 
-- ✅ Download all `.csv` files from EMBRAPA
-- 🧾 Log downloaded file metadata into a Postgres database
-- 🌐 Simple HTTP API built with FastAPI
-- 🛡️ Handles connection errors (e.g., offline site)
+- ✅ Download all `.csv` files from EMBRAPA  
+- 🧾 Log downloaded file metadata into a **BigQuery** table  
+- 🌐 Simple HTTP API built with FastAPI  
+- 🛡️ Handles connection errors (e.g., offline site)  
 - 📂 Saves files in a dedicated local directory (`embrapa_files/`)
 
 ---
 
 ## 🧰 Tech Stack
 
-- Python 3.11+
-- FastAPI
-- Requests
-- BeautifulSoup4
-- Uvicorn (for dev server)
-- Poetry (for dependency management)
-- Databases + asyncpg (PostgreSQL client)
+- Python 3.11+  
+- FastAPI  
+- Requests  
+- BeautifulSoup4  
+- Uvicorn (for dev server)  
+- Poetry (for dependency management)  
+- Google Cloud BigQuery (`google-cloud-bigquery`)  
+- `python-dotenv` for environment management  
 
 ---
 
@@ -37,13 +38,15 @@ cd tech-challenge1-g27
 
 ### 2. Create a `.env` file
 
-Add a `.env` file in the project root with the following variable:
+In the project root, add a `.env` file with the following variables:
 
 ```env
-DATABASE_URL=postgresql://<user>:<password>@<host>:<port>/<db_name>
+GOOGLE_APPLICATION_CREDENTIALS=secrets/your-key.json
+BIGQUERY_PROJECT=your-gcp-project-id
+BIGQUERY_DATASET=your_dataset_name
 ```
 
-You can get this from platforms like Render or other PostgreSQL providers.
+Replace `your-key.json` with the path to your service account JSON, and the project/dataset values accordingly.
 
 ### 3. Install dependencies with Poetry
 
@@ -67,54 +70,53 @@ uvicorn app:app --reload
 
 ## 📡 Endpoints
 
-### `GET /`
-Basic welcome route.
+### `GET /`  
+Returns a welcome message.
 
-### `POST /download`
-🔽 Triggers the download of all available `.csv` files from EMBRAPA's Vitibrasil portal.
+### `POST /download`  
+🔽 Triggers the download of all `.csv` files from EMBRAPA's Vitibrasil portal.  
+- ✅ Saves files to `embrapa_files/`  
+- 🧾 Logs metadata to **BigQuery**
 
-- ✅ Saves the files locally in the `embrapa_files/` folder  
-- 🧾 Logs metadata into a PostgreSQL database
+### `GET /files`  
+📂 Lists all downloaded files in the `embrapa_files/` directory.
 
-### `GET /files`
-📂 Lists all files currently saved in the `embrapa_files/` directory.
+### `GET /preview/{filename}`  
+📥 Downloads a specific file.  
+- 🔍 Returns `404` if not found.
 
-### `GET /files/{filename}`
-📥 Downloads a specific file from local storage.
+### `GET /filesdb`  
+🧾 Lists all logged file metadata from BigQuery.  
+- 📌 Sorted by download time (newest first)
 
-- 🔍 Returns `404` if the file is not found.
+### `GET /health`  
+⚙️ Verifies if the BigQuery connection is working.
 
-### `GET /filesdb`
-🧾 Lists metadata of all downloaded files, as stored in the database.
-
-- 📌 Sorted by download time (most recent first)
-
-### `GET /health`
-⚙️ Optional health check (if exposed) to verify if the database connection is operational.
 ---
 
 ## 🧪 Coming Soon
-- [X] Download all files from EMBRAPA's Vitibrasil portal
-- [X] Download all files from EMBRAPA's Vitibrasil portal (async)
-- [X] Download all files from EMBRAPA's Vitibrasil portal (async with progress bar and status handling)
-- [X] Endpoint to list available files  
-- [X] Integration with Postgres database (metadata storage)
-- [ ] Integration with task scheduling or Celery for automatic updates
-- [ ] File Preview in the Browser
-- [ ] Define structured Pydantic models
-- [ ] DataFrame Integration
-- [ ] Integration with Postgres database (tables storage)
-- [ ] Data Cleaning and Preprocessing
+
+- [X] Async download of all Vitibrasil files  
+- [X] Metadata logging to BigQuery  
+- [X] File preview in Swagger docs  
+- [ ] Replace `poetry` with [`uv`](https://github.com/astral-sh/uv)  
+- [ ] Replace Render with Supabase  
+- [ ] Replace `aiohttp` with `httpx`  
+- [ ] Define structured Pydantic models  
+- [ ] DataFrame integration  
+- [ ] Store dataset contents (not just metadata) in BigQuery  
+- [ ] Schedule automatic updates (Celery or GCP Scheduler)  
+- [ ] Data cleaning and preprocessing utilities
 
 ---
 
 ## 👨‍💻 Authors
 
-- Victor Santos – [@vlsoexecutivo](mailto:vlsoexecutivo@gmail.com)
-- G27 team – FIAP Tech Challenge 1
+- Victor Santos – [@vlsoexecutivo](mailto:vlsoexecutivo@gmail.com)  
+- G27 Team – FIAP Tech Challenge 1
 
 ---
 
 ## 📄 License
 
-MIT License
+MIT License 

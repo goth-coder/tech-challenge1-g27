@@ -1,10 +1,12 @@
+
 import os 
 import aiohttp
 from .constants import BASE_URL, DEST_FOLDER
-from bs4 import BeautifulSoup 
-from datetime import datetime
-from db.database import database
-from db.models import FileRecord
+from bs4 import BeautifulSoup  
+from db.bigquery_client import log_file_metadata_to_bigquery
+from dotenv import load_dotenv
+
+load_dotenv()
  
 
 async def download_all_files():
@@ -35,14 +37,12 @@ async def download_all_files():
                                         f.write(await file_response.read())
 
                                     # Salvar metadados no banco
-                                    query = FileRecord.__table__.insert().values(
+                                    log_file_metadata_to_bigquery(
                                         filename=filename,
                                         url=file_url,
-                                        downloaded_at=datetime.utcnow(),
                                         file_type=filename.split('.')[-1],
                                         status="success"
-                                    )
-                                    await database.execute(query)
+                                    ) 
 
                                     results.append({"file": filename, "status": "success"})
 
@@ -50,6 +50,12 @@ async def download_all_files():
                                     results.append({"file": filename, "status": f"error {file_response.status}"})
 
                         except Exception as e:
+                            log_file_metadata_to_bigquery(
+                                filename=filename,
+                                url=file_url,
+                                file_type=filename.split('.')[-1],
+                                status=f"error: {str(e)}"
+                            )
                             results.append({"file": filename, "status": f"error: {str(e)}"})
 
                 return results

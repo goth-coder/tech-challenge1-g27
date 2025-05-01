@@ -1,5 +1,6 @@
 # Ambiente virtual Python
 .venv/
+secrets/
 
 # Versão do Python (pyenv)
 .python-version
