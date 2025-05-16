@@ -1,0 +1,38 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+.env/
+ENV/
+env/
+.venv/
+
+# Pytest cache
+.pytest_cache/
+
+# VS Code configs
+.vscode/
+
+# MacOS
+.DS_Store
+
+# Swagger cache
+*.swagger.json
+
+# Jupyter notebook checkpoints
+.ipynb_checkpoints/
+
+# Logs
+*.log
+
+# MyPy
+.mypy_cache/
+
+# pyre type checker
+.pyre/
+
+# PyCharm
+.idea/
