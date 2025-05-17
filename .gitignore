@@ -9,6 +9,7 @@ venv/
 ENV/
 env/
 .venv/
+.python-version
 
 # Pytest cache
 .pytest_cache/
