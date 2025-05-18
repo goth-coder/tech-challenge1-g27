@@ -1,9 +1,7 @@
 from flask import Flask
 from flasgger import Swagger
-from flasgger.utils import swag_from
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from flask_jwt_extended import JWTManager
 from app.routes.auth_routes import auth_bp
 from app.auth.jwt_manager import jwt
 from app.routes.main_routes import main_bp
@@ -41,7 +39,6 @@ def create_app():
     app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'super-secret')
     db.init_app(app)
     migrate.init_app(app, db)
-    JWTManager(app)
     jwt.init_app(app)
     app.register_blueprint(auth_bp)
     app.register_blueprint(main_bp)
