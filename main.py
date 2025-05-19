@@ -43,6 +43,8 @@ def create_app():
     app.register_blueprint(auth_bp)
     app.register_blueprint(main_bp)
     app.register_blueprint(producao_bp)
+    from app.routes.processamento_routes import processamento_bp
+    app.register_blueprint(processamento_bp)
     return app
 
 if __name__ == "__main__":

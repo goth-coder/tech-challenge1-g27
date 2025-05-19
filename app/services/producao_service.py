@@ -5,8 +5,6 @@ from bs4 import BeautifulSoup
 import re
 import requests
 
-# Removido CSV_PATH e _load_csv_fallback (agora em utilitário)
-
 
 def fetch_producao_data():
     """
