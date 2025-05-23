@@ -8,6 +8,8 @@ from app.routes.auth_routes import auth_bp
 from app.auth.jwt_manager import jwt
 from app.routes.main_routes import main_bp
 from app.routes.producao_routes import producao_bp
+from app.routes.importacao_routes import importacao_bp
+
 import os
 from dotenv import load_dotenv
 
@@ -46,6 +48,7 @@ def create_app():
     app.register_blueprint(auth_bp)
     app.register_blueprint(main_bp)
     app.register_blueprint(producao_bp)
+    app.register_blueprint(importacao_bp)
     return app
 
 if __name__ == "__main__":
