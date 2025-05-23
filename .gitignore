@@ -2,7 +2,6 @@
 __pycache__/
 *.py[cod]
 *$py.class
-
 # Virtual environment
 venv/
 .env/
@@ -37,3 +36,6 @@ env/
 
 # PyCharm
 .idea/
+
+# Static data
+static_data/

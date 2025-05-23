@@ -1,142 +1,113 @@
-# Serviço para scraping e fallback de importação
+# Serviço para scraping e fallback de importação 
 from bs4 import BeautifulSoup
 import pandas as pd
 import re
 import os
 import requests
+from app.utils.csv_utils import load_csv_fallback
+from app.utils.importacao_csv_utils import CSV_MAP, load_importacao_csv, save_importacao_csv
+import warnings
+import logging
 
-def fetch_importacao_data(year=None):
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+IMPORTACAO_SUBOPCOES = {
+    'Vinhos de mesa': 'subopt_01',
+    'Espumantes': 'subopt_02',
+    'Uvas frescas': 'subopt_03',
+    'Uvas passas': 'subopt_04',
+    'Suco de uva': 'subopt_05',
+}
+
+   
+def fetch_all():
+    """
+    Busca dados de todas as subopções de importação para os anos informados e cria um arquivo para cada subopção contendo todos os anos.
+    """
+    
+    for tipo, subopcao in IMPORTACAO_SUBOPCOES.items(): 
+        result = []
+        for ano in range(1970, 2025): 
+            print('ANO', ano)
+            try: 
+                data = fetch_importacao_data(ano, tipo) 
+                if not data:
+                    logging.warning(f"Dados não encontrados para o ano {ano}.")
+                    continue
+                result.extend(data)
+                logging.info(f"Dados coletados com sucesso para o ano {ano}, tipo {tipo}")
+                 
+            except Exception as e:
+                logging.error(f"Erro ao buscar dados para o ano {ano} tipo {tipo}: {e}")
+ 
+        save_importacao_csv(result,tipo)
+
+
+def fetch_importacao_data(ano, tipo):
     """
     Scrape todos os blocos de importação do site da Embrapa para o ano informado.
-    Se falhar, faz fallback para o CSV, retornando todos os dados (se year=None) ou apenas do ano (se year informado).
+    Se falhar, faz fallback para o CSV, retornando todos os dados (se ano=None) ou apenas do ano (se ano informado).
     Retorna uma lista de dicts: [{categoria, produto, ano, valor}]
     """
-    url = f"http://vitibrasil.cnpuv.embrapa.br/index.php?ano={year if year else 2023}&opcao=opt_05"
+    subopcao = IMPORTACAO_SUBOPCOES.get(tipo) if tipo else 'Vinhos de mesa'
+    url = f"http://vitibrasil.cnpuv.embrapa.br/index.php?ano={ano}&opcao=opt_05&subopcao={subopcao}"
     try:
-        response = requests.get(url, timeout=5)
+        logging.info(f"Iniciando requisição para URL: {url}")
+
+        response = requests.get(url, timeout=14)
         response.raise_for_status()
-        soup = BeautifulSoup(response.content, 'html.parser')  
-        tables = soup.find_all('table', {'class': 'tb_dados'}) 
-        if not tables:
-            raise Exception("Tabela não encontrada")
-        result = []
-        for table in tables:
-            for row in table.find_all('tr'): 
-                cols = row.find_all('td') 
-                row_list = [col.get_text(strip=True).replace('.', '').replace('-', '0') for col in cols]
-                if row_list != []:
- 
-                    pais, quantidade, valor = row_list[:3]
-                    print(pais, quantidade, valor)
-                    
-                    result.append({                    
-                        'ano': str(year) if year else None,
-                        'pais': pais,
-                        'quantidade': float(quantidade),                    
-                        'valor': float(valor)
-                    })
-                 
-    except Exception:
-        "Tries to read from CSV if scraping fails"
-        csv_path = os.path.join(os.path.dirname(__file__), '../../static_data/importacao.csv')
-        if not os.path.exists(csv_path):
-            return None
-        df = pd.read_csv(csv_path, sep=';', encoding='utf-8', engine='python', on_bad_lines='skip')
-        melted = df.melt(id_vars=[col for col in df.columns if col not in [str(y) for y in range(1900, 2100)]], var_name='ano', value_name='valor')
-        if year:
-            melted = melted[melted['ano'] == str(year)]
-        melted['categoria'] = melted['control'] if 'control' in melted.columns else melted['produto']
-        melted['produto'] = melted['produto']
-        melted['valor'] = pd.to_numeric(melted['valor'], errors='coerce').fillna(0).astype(int)
-        return melted[['categoria', 'produto', 'ano', 'valor']].to_dict(orient='records')
+        soup = BeautifulSoup(response.text, 'html.parser')
+        return parse_importacao_data(soup, ano,tipo)
+        
+    except Exception as e:
+        logging.error(f"Erro ao processar dados de {tipo} para o ano {ano}: {e}")
+        logging.info(f"Realizando fallback para CSV de {tipo}, ano {ano}")        
+        return load_importacao_csv(ano, tipo)
+  
 
-def fetch_importacao_data_por_ano(ano):
+def parse_importacao_data(soup, ano,tipo):
     """
-    Scraping dinâmico por ano, agrupando produtos por categoria, igual ao HTML de referência.
-    Fallback para CSV se scraping falhar OU se scraping retornar lista vazia.
-    Retorna: {"ano": [ {"categoria": ..., "produtos": [ {"produto": ..., "quantidade": ... }, ... ] }, ... ] }
-    """
-    url = f"http://vitibrasil.cnpuv.embrapa.br/index.php?ano={ano}&opcao=opt_02"
-    try:
-        response = requests.get(url, timeout=10)
-        response.raise_for_status()
-        soup = BeautifulSoup(response.text, "html.parser")
-        table = soup.find('table', {'class': 'tb_dados'})
-        if not table:
-            raise Exception("Tabela não encontrada")
-        dados = {str(ano): []}
-        categoria_atual = None
-        produtos = []
-        for row in table.find_all('tr'):
-            cols = row.find_all('td')
-            if len(cols) == 1 and cols[0].has_attr('colspan'):
-                if categoria_atual and produtos:
-                    dados[str(ano)].append({
-                        "categoria": categoria_atual,
-                        "produtos": produtos
-                    })
-                    produtos = []
-                categoria_atual = cols[0].get_text(strip=True)
-            elif len(cols) == 2 and categoria_atual:
-                produto = cols[0].get_text(strip=True)
-                quantidade_texto = cols[1].get_text(strip=True).replace('.', '').replace('-', '0')
-                try:
-                    quantidade = int(re.sub(r'\D', '', quantidade_texto))
-                except ValueError:
-                    quantidade = 0
-                produtos.append({
-                    "produto": produto,
-                    "quantidade": quantidade
-                })
-        if categoria_atual and produtos:
-            dados[str(ano)].append({
-                "categoria": categoria_atual,
-                "produtos": produtos
-            })
-        if not dados[str(ano)]:
-            raise Exception("Scraping retornou vazio")
-        return dados
-    except Exception:
-        csv_path = os.path.join(os.path.dirname(__file__), '../../static_data/importacao.csv')
-        if not os.path.exists(csv_path):
-            return None
-        df = pd.read_csv(csv_path, sep=';', encoding='utf-8', engine='python', on_bad_lines='skip')
-        year_col = str(ano)
-        if 'control' in df.columns:
-            grouped = df.groupby('control')
-        else:
-            grouped = df.groupby('produto')
-        dados = {str(ano): []}
-        for categoria, group in grouped:
-            produtos = []
-            for _, row in group.iterrows():
-                produto = row['produto']
-                try:
-                    quantidade = int(row[year_col])
-                except Exception:
-                    quantidade = 0
-                produtos.append({
-                    "produto": produto,
-                    "quantidade": quantidade
-                })
-            dados[str(ano)].append({
-                "categoria": categoria,
-                "produtos": produtos
-            })
-        return dados
+    Parses import data from an HTML table and returns a list of dictionaries with country, quantity, and value.
+    Args:
+        soup (bs4.BeautifulSoup): Parsed HTML content containing the import data table.
+        ano (int or str): Year associated with the import data.
+    Returns:
+        list of dict: A list where each dict contains:
+            - 'ano' (int): The year of the import data.
+            - 'pais' (str): The country name.
+            - 'quantidade' (float): The quantity imported.
+            - 'valor' (float): The value of the import.
+    Notes:
+        - Expects the table to have the class 'tb_dados'.
+        - If the table is not found, returns an empty list.
+        - Non-numeric values in 'quantidade' and 'valor' are replaced with 0.
+    """ 
+    table = soup.find('table', {'class': 'tb_dados'})
+    if not table:
+        return []
+    
+    rows = table.find_all('tr')
+    data = []
+    for row in rows:
+        cols = row.find_all('td') 
+        row_list = [col.get_text(strip=True).replace('.', '').replace('-', '0') for col in cols]            
+        if row_list != []: 
+            try:
+                pais, quantidade, valor = row_list[:3]                
+            except Exception as e:
+                logging.error(f"Erro ao processar linha: {row_list}, erro: {e}")
+                break
+            data.append({
+                'ano':int(ano),      
+                'pais': pais,
+                'quantidade': float(quantidade),                    
+                'valor': float(valor)
+            }) 
 
-def normalize_key(text):
-    return re.sub(r'[^a-z0-9_]', '', text.strip().lower().replace(' ', '_').replace('ç', 'c').replace('ã', 'a').replace('á', 'a').replace('é', 'e').replace('í', 'i').replace('ó', 'o').replace('ú', 'u').replace('â', 'a').replace('ê', 'e').replace('ô', 'o').replace('õ', 'o').replace('ü', 'u').replace('à', 'a'))
-
-def parse_int(text):
-    txt = text.strip().replace('.', '').replace('-', '0')
-    try:
-        return int(re.sub(r'\D', '', txt))
-    except Exception:
-        return 0
+    return data
 
 
 
 
-fetch_importacao_data(2024)
-# fetch_importacao_data_por_ano(2023)
+if __name__ == "__main__":
+    fetch_all()
