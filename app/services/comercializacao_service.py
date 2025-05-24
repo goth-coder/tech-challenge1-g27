@@ -1,22 +1,22 @@
-# Serviço para scraping e fallback de produção
-from app.utils.config import EMBRAPA_BASE_URL, CSV_PATH_PRODUCAO
+# Serviço para scraping e fallback de comercialização
+from app.utils.config import EMBRAPA_BASE_URL, CSV_PATH_COMERCIALIZACAO
 from app.utils.csv_utils import load_csv_fallback
 from bs4 import BeautifulSoup
 import re
 import requests
 
 
-def fetch_producao_data():
+def fetch_comercializacao_data():
     """
-    Scrape todos os blocos de produção do site da Embrapa para o ano informado.
-    Se falhar, faz fallback para o CSV, retornando todos os dados (se year=None) ou apenas do ano (se year informado).
+    Scrape todos os blocos de comercialização do site da Embrapa.
+    Se falhar, faz fallback para o CSV, retornando todos os dados de todos os anos (year=None).
     Retorna uma lista de dicts: [{categoria, produto, ano, valor}]
     """
     try:
         anos = list(range(1970, 2024))
         result = []
         for ano in anos:
-            ano_data = fetch_producao_data_por_ano(ano)
+            ano_data = fetch_comercializacao_data_por_ano(ano)
             if ano_data:
                 for bloco in ano_data[str(ano)]:
                     categoria = bloco['categoria']
@@ -29,9 +29,9 @@ def fetch_producao_data():
                         })
         return result
     except Exception:
-        return load_csv_fallback(year=None, agrupado=False, csv_path=CSV_PATH_PRODUCAO)
+        return load_csv_fallback(year=None, agrupado=False,csv_path=CSV_PATH_COMERCIALIZACAO)
 
-def fetch_producao_data_por_ano(ano):
+def fetch_comercializacao_data_por_ano(ano):
     """
     Scraping dinâmico por ano, agrupando produtos por categoria, e fallback para CSV se scraping falhar OU se scraping retornar lista vazia.
     Retorna: {"ano": [ {"categoria": ..., "produtos": [ {"produto": ..., "quantidade": ... }, ... ] }, ... ] }
@@ -82,4 +82,4 @@ def fetch_producao_data_por_ano(ano):
         return dados
 
     except Exception:
-        return load_csv_fallback(year=ano, agrupado=True, csv_path=CSV_PATH_PRODUCAO)
+        return load_csv_fallback(year=ano, agrupado=True,csv_path=CSV_PATH_COMERCIALIZACAO)

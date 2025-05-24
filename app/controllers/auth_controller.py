@@ -23,9 +23,9 @@ def login():
     if not username or not password:
         return jsonify({'msg': 'Usuário e senha obrigatórios'}), 400
     user = User.find_by_username(username)
-    if user is None:
-        return jsonify({'msg': 'Usuário não registrado'}), 404
-    if not user.verify_password(password):
+    #if user is None:
+        #return jsonify({'msg': 'Usuário não registrado'}), 404
+    if user is None or not user.verify_password(password):
         return jsonify({'msg': 'Usuário ou senha incorretos'}), 401
     access_token = create_access_token(identity=username)
     return jsonify(access_token=access_token), 200

@@ -38,3 +38,6 @@ env/
 .idea/
 
 exemplo_retorno_html/
+
+# script de scrape da pagina comercializacao
+/scripts
