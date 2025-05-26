@@ -1,25 +1,25 @@
-import os
-import logging
+import os 
 import pandas as pd
 from app.utils.config import STATIC_DATA_PATH
+import logging
 from app.utils.config import (
-    CSV_PATH_IMPORTACAO_VINHOSMESA,
-    CSV_PATH_IMPORTACAO_ESPUMANTES,
-    CSV_PATH_IMPORTACAO_UVASFRESCAS,
-    CSV_PATH_IMPORTACAO_UVASPASSAS,
-    CSV_PATH_IMPORTACAO_SUCO,
+    CSV_PATH_EXPORTACAO_VINHOSMESA,
+    CSV_PATH_EXPORTACAO_ESPUMANTES,
+    CSV_PATH_EXPORTACAO_UVASFRESCAS,
+    CSV_PATH_EXPORTACAO_UVASPASSAS,
+    CSV_PATH_EXPORTACAO_SUCO,
 )
 
 CSV_MAP = {
-    'Vinhos de mesa': CSV_PATH_IMPORTACAO_VINHOSMESA,
-    'Espumantes': CSV_PATH_IMPORTACAO_ESPUMANTES,
-    'Uvas frescas': CSV_PATH_IMPORTACAO_UVASFRESCAS,
-    'Uvas passas': CSV_PATH_IMPORTACAO_UVASPASSAS,
-    'Suco de uva': CSV_PATH_IMPORTACAO_SUCO,
+    'Vinhos de mesa': CSV_PATH_EXPORTACAO_VINHOSMESA,
+    'Espumantes': CSV_PATH_EXPORTACAO_ESPUMANTES,
+    'Uvas frescas': CSV_PATH_EXPORTACAO_UVASFRESCAS,
+    'Uvas passas': CSV_PATH_EXPORTACAO_UVASPASSAS,
+    'Suco de uva': CSV_PATH_EXPORTACAO_SUCO,
 }
 
 
-def save_importacao_csv(data, tipo):
+def save_exportacao_csv(data, tipo):
     """
     Salva a lista de dicts de produção em um arquivo CSV.
     
@@ -39,13 +39,21 @@ def save_importacao_csv(data, tipo):
     return df
 
 
-def load_importacao_csv(ano, tipo):
+def load_exportacao_csv(ano, tipo):
     """
     Carrega dados do CSV de fallback para o tipo e ano.
     """  
     path = CSV_MAP.get(tipo)
     if not path or not os.path.exists(path):
-        logging.warning(f"Arquivo CSV para o tipo '{tipo}' não encontrado em '{path}'.")
+        logging.warning(
+            "⚠️ Arquivo CSV não encontrado!\n"
+            "Tipo: %s\n"
+            "Path: %s\n"
+            "CSV_MAP Keys: %s\n",
+            tipo,
+            path if path else 'Path não definido',
+            list(CSV_MAP.keys())
+        ) 
         return []
     df = pd.read_csv(path, sep=';', encoding='utf-8', engine='python', on_bad_lines='skip')
     df = df[df['ano'] == int(ano)]

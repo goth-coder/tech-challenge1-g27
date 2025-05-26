@@ -1,16 +1,16 @@
 from flask import Blueprint
-from app.controllers import importacao_controller as controller
+from app.controllers import exportacao_controller as controller
 from flask_jwt_extended import jwt_required
 from flasgger import swag_from
 
-importacao_bp = Blueprint('importacao', __name__)
+exportacao_bp = Blueprint('exportacao', __name__)
 
-@importacao_bp.route('/importacao/<int:ano>', methods=['GET'])
+@exportacao_bp.route('/exportacao/<int:ano>', methods=['GET'])
 @jwt_required()
 @swag_from({
-    'tags': ['Importação'],
-    'summary': 'Retorna dados de importacao de todas as subopções para o ano informado',
-    'description': 'Requer autenticação JWT. Envie o token no header Authorization: Bearer <token>.',
+    'tags': ['Exportação'],
+    'summary': 'Faz o download de todos os dados de Exportação de 1970 a 2024',
+    'description': 'Requer autenticação JWT. Envie o token no header Authorization: Bearer <token>. Retorna todos os dados de Exportação de vinho de 1970 a 2024.',
     'parameters': [
         {
             'name': 'ano',
@@ -23,7 +23,7 @@ importacao_bp = Blueprint('importacao', __name__)
     'security': [{'BearerAuth': []}],
     'responses': {
         200: {
-            'description': '✅ Dados de Importação obtidos com sucesso',
+            'description': '✅ Dados de Exportação baixados com sucesso',
         },
         401: {
             'description': 'Token JWT ausente ou inválido'
@@ -33,16 +33,15 @@ importacao_bp = Blueprint('importacao', __name__)
 def get_ano(ano):
     return controller.get_ano(ano)
 
-
-@importacao_bp.route('/importacao/<string:tipo>/', methods=['GET'])
+@exportacao_bp.route('/exportacao/<string:tipo>', methods=['GET'])
 @jwt_required()
 @swag_from({
-    'tags': ['Importação'],
-    'summary': 'Retorna dados de Importação de um tipo específico e anos informados',
-    'description': 'Requer autenticação JWT. Envie o token no header Authorization: Bearer <token>. Retorna dados de Importação para o subtipo, podendo filtrar anos com query param "ano" ou "anos".',
+    'tags': ['Exportação'],
+    'summary': 'Retorna dados de Exportação de um tipo específico e anos informados',
+    'description': 'Requer autenticação JWT. Envie o token no header Authorization: Bearer <token>. Retorna dados de Exportação para o subtipo, podendo filtrar anos com query param "ano" ou "anos".',
     'parameters': [
         {
-            'name': 'tipo',
+            'name': 'subtipo',
             'in': 'path',
             'type': 'string',
             'required': True,
@@ -66,7 +65,7 @@ def get_ano(ano):
     'security': [{'BearerAuth': []}],
     'responses': {
         200: {
-            'description': 'Query de dados de importação bem sucedida',
+            'description': 'Query de dados de Exportação bem sucedida',
         },
         400: {
             'description': 'Ano inválido'
@@ -83,6 +82,6 @@ def get_tipo_ano(tipo):
     return controller.get_tipo_ano(tipo)
 
 # Rotas
-## Para fazer download dos dados de importação
+## Para fazer download dos dados de Exportação
 ## Query de acordo com o tipo contendo todos os anos
 ## Query de acordo com o tipo e ano

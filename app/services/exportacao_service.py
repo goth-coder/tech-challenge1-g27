@@ -4,14 +4,14 @@ import pandas as pd
 import re
 import os
 import requests
-from app.utils.importacao_csv_utils import  load_importacao_csv, save_importacao_csv
+from app.utils.exportacao_csv_utils import  load_exportacao_csv, save_exportacao_csv
 from app.utils.config import EMBRAPA_BASE_URL
 import logging
 import time
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-IMPORTACAO_SUBOPCOES = {
+EXPORTACAO_SUBOPCOES = {
     'Vinhos de mesa': 'subopt_01',
     'Espumantes': 'subopt_02',
     'Uvas frescas': 'subopt_03',
@@ -19,38 +19,37 @@ IMPORTACAO_SUBOPCOES = {
     'Suco de uva': 'subopt_05',
 }
 
-def fetch_importacao_data_por_ano(ano):
+def fetch_exportacao_data_por_ano(ano):
     """
-    Fetches product import data for all import sub-options for a given year.
+    Fetches product export data for all export sub-options for a given year.
 
     Args:
-        ano (int): The year for which import data should be fetched.
+        ano (int): The year for which export data should be fetched.
 
     Returns:
         dict: A dictionary with the year as a string key and a nested dictionary containing
-              product import data for all sub-option for a given year.
+              product export data for all sub-option for a given year.
  
     Logging:
         Logs the start and successful completion of data fetching for each sub-option.
      
     """
     result = {}
-    for tipo in IMPORTACAO_SUBOPCOES:
-        logging.info(f"Buscando dados de importação para o tipo '{tipo}' e ano {ano}")
-        result[tipo] = fetch_importacao_data(ano, tipo)
-        logging.info("✅ Dados de importação obtidos com sucesso")
+    for tipo in EXPORTACAO_SUBOPCOES:
+        logging.info(f"Buscando dados de exportação para o tipo '{tipo}' e ano {ano}")
+        result[tipo] = fetch_exportacao_data(ano, tipo)
+        logging.info("Dados de exportação obtidos com sucesso")
     return {str(ano): result}
  
  
-def fetch_importacao_data(ano, tipo):
- 
+def fetch_exportacao_data(ano, tipo):
     """
-    Fetches product import data for a specific category and year from the Embrapa website.
+    Fetches product export data for a specific category and year from the Embrapa website.
     If the web request fails, falls back to loading data from a CSV file.
     
     Args:
-        ano (int): The year for which to fetch import data.
-        tipo (str): The import category (e.g., 'Vinhos de mesa', 'Espumantes').
+        ano (int): The year for which to fetch export data.
+        tipo (str): The export category (e.g., 'Vinhos de mesa', 'Espumantes').
     
     Returns:
         list of dict: Each dict contains keys such as 'ano', 'pais', 'quantidade', and 'valor'.
@@ -60,8 +59,8 @@ def fetch_importacao_data(ano, tipo):
         Logs errors encountered during the request or parsing.
         Logs when falling back to loading data from a CSV file.
     """
-    subopcao = IMPORTACAO_SUBOPCOES.get(tipo) if tipo else 'Vinhos de mesa'
-    url = f"{EMBRAPA_BASE_URL}{ano}&opcao=opt_05&subopcao={subopcao}"
+    subopcao = EXPORTACAO_SUBOPCOES.get(tipo) if tipo else 'Vinhos de mesa'
+    url = f"{EMBRAPA_BASE_URL}{ano}&opcao=opt_06&subopcao={subopcao}"
     try:
         logging.info(f"Iniciando requisição para URL: {url}")
 
@@ -69,32 +68,33 @@ def fetch_importacao_data(ano, tipo):
         response.raise_for_status()
         soup = BeautifulSoup(response.text, 'html.parser')
         time.sleep(1) 
-        return parse_importacao_data(soup, ano,tipo)
+        return parse_exportacao_data(soup, ano,tipo)
         
     except Exception as e:
         logging.error(
-            f"❌ [fetch_importacao_data] Falha ao processar dados: "
+            f"❌ [fetch_exportacao_data] Falha ao processar dados: "
             f"tipo='{tipo}', ano={ano}, url='{url}'. Erro: {e}\n"
         )
-        logging.info(f"Fallback para CSV: tipo='{tipo}', ano={ano}")    
-        return load_importacao_csv(ano, tipo)
+        logging.info(f"Fallback para CSV: tipo='{tipo}', ano={ano}")
+    
+        return load_exportacao_csv(ano, tipo)
   
 
-def parse_importacao_data(soup, ano,tipo):
+def parse_exportacao_data(soup, ano,tipo):
     """
-    Parses product import data from an HTML table and returns a list of dictionaries with country, quantity, and value.
+    Parses product export data from an HTML table and returns a list of dictionaries with country, quantity, and value.
     Args:
-        soup (bs4.BeautifulSoup): Parsed HTML content containing the import data table.
-        ano (int or str): Year associated with the import data.
+        soup (bs4.BeautifulSoup): Parsed HTML content containing the export data table.
+        ano (int or str): Year associated with the export data.
         
     Returns:
         list of dict: A list where each dict contains:
-            'ano' (int): The year of the import data.
+            'ano' (int): The year of the export data.
             'pais' (str): The country name.
-            'quantidade' (float): The quantity imported.
-            'valor' (float): The value of the import.
+            'quantidade' (float): The quantity exported.
+            'valor' (float): The value of the export.
 
-    Notes:
+    Notes: 
         If the table is not found, returns an empty list.
         Non-numeric values in 'quantidade' and 'valor' are replaced with 0.
     """ 
@@ -119,14 +119,12 @@ def parse_importacao_data(soup, ano,tipo):
                 'quantidade': float(quantidade),                    
                 'valor': float(valor)
             }) 
-    save_importacao_csv(data, tipo)  # Salva os dados no CSV
+    save_exportacao_csv(data, tipo)  # Salva os dados no CSV
     return data
 
 
-
-
 if __name__ == "__main__":
-    result = fetch_importacao_data('2023', 'Vinhos de mesa')
-    result2 = fetch_importacao_data_por_ano('2023')
-    # print(result)
+    result = fetch_exportacao_data('2023', 'Vinhos de mesa')
+    result2 = fetch_exportacao_data_por_ano('2023')
+    print(result)
     print(result2)

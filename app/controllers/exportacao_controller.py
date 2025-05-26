@@ -1,33 +1,33 @@
 from flask import request, jsonify
-from app.services.importacao_service import fetch_importacao_data_por_ano, fetch_importacao_data
+from app.services.exportacao_service import fetch_exportacao_data_por_ano, fetch_exportacao_data
 
 
 def get_ano(ano):
     """
-    Retrieve import data for a specific year.
+    Retrieve export data for a specific year.
     Args:
-        ano (int): The year for which to retrieve import data. Must be between 1970 and 2024.
+        ano (int): The year for which to retrieve export data. Must be between 1970 and 2024.
     Returns:
         Response: A Flask JSON response containing:
-            The import data for the specified year (HTTP 200), if found.
+            The export data for the specified year (HTTP 200), if found.
             An error message (HTTP 400) if the year is out of the allowed range.
             An error message (HTTP 404) if no data is found for the specified year.
     Example:
-        response = get_importacao_ano(2020)
+        response = get_exportacao_ano(2020)
     """
     if ano < 1970 or ano > 2023:
         return jsonify({"error": "Ano deve ser entre 1970 e 2024"}), 400
-    dados = fetch_importacao_data_por_ano(ano)
+    dados = fetch_exportacao_data_por_ano(ano)
     if not dados or not str(ano) in dados:
         return jsonify({"error": f"Dados para o ano {ano} não encontrados"}), 404
     return jsonify(dados)
 
 
-def get_tipo_ano(tipo):
+def get_tipo_ano(tipo,):
     """
-    Consulta e retorna dados de importação para um determinado tipo e intervalo de anos.
+    Consulta e retorna dados de exportação para um determinado tipo e intervalo de anos.
     Parâmetros:
-        tipo (str): O tipo de importação a ser consultado.
+        tipo (str): O tipo de exportação a ser consultado.
 
     Query Parameters:
         ano (int, opcional): Ano específico para consulta (entre 1970 e 2024).
@@ -40,7 +40,7 @@ def get_tipo_ano(tipo):
         Os anos devem estar no intervalo de 1970 a 2024.
 
     Retornos:
-        200: Dados de importação encontrados, no formato JSON contendo tipo, anos e dados.
+        200: Dados de exportação encontrados, no formato JSON contendo tipo, anos e dados.
         400: Erro de validação nos parâmetros (ano(s) fora do intervalo ou formato inválido).
         404: Nenhum dado encontrado para o tipo e anos informados.
         500: Erro interno ao buscar dados.
@@ -51,7 +51,7 @@ def get_tipo_ano(tipo):
             "anos": [2020, 2021],
             "dados": [...]
         }
-    Consulta dados de importação para um tipo e anos específicos ou todos.
+    Consulta dados de exportação para um tipo e anos específicos ou todos.
     """
     ano = request.args.get('ano', type=int)
     anos_range = request.args.get('anos')
@@ -74,7 +74,7 @@ def get_tipo_ano(tipo):
     result = []
     for ano in anos:
         try:
-            data = fetch_importacao_data(ano, tipo)
+            data = fetch_exportacao_data(ano, tipo)
             # print(data)
             if data:
                 result.extend(data)
