@@ -14,6 +14,8 @@
 ## Processamento
 - [ ] Criar endpoint `/processamento/{ano}`
 - [ ] Criar endpoint `/processamento/{tipo}/{ano}`
+- [ ] Documentar os endpoints de processamento com swagger
+
 
 ## Comercialização
 - [ ] Criar endpoint `/comercializacao`
