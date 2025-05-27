@@ -1,13 +1,16 @@
 import pandas as pd
 import os
-from app.utils.config import CSV_PATH_PRODUCAO
 
-def load_csv_fallback(year=None, agrupado=False, csv_path=CSV_PATH_PRODUCAO):
+def load_csv_fallback(year=None, agrupado=False, csv_path=None):
     """
-    Carrega dados do CSV de fallback para produção.
-    Pode filtrar por ano e agrupar por categoria.
+    Carrega dados do CSV de fallback para a categoria em questão.
+    Parâmetros:
+        year: ano a filtrar (opcional)
+        agrupado: se True, agrupa por categoria
+        csv_path: caminho do CSV (obrigatório)
     """
-    if not os.path.exists(csv_path):
+    if not csv_path or not os.path.exists(csv_path):
+        print("Arquivo .csv não existe")
         return None
     df = pd.read_csv(csv_path, sep=';', encoding='utf-8', engine='python', on_bad_lines='skip')
     df = df.melt(id_vars=['produto', 'control'], var_name='ano', value_name='valor')

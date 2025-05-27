@@ -13,6 +13,9 @@ API REST em Python/Flask para consulta de dados públicos da vitivinicultura do 
 - Endpoints de processamento:
   - `GET /processamento/{ano}` — Dados de todas as subopções (viníferas, americanas, mesa, sem classificação) para o ano.
   - `GET /processamento/{tipo}/{ano}` — Dados de uma subopção específica para o ano.
+- Endpoints de comercialização:
+  - `GET /comercializacao` — Todos os dados de comercialização de 1970 a 2023.
+  - `GET /comercializacao/{ano}` — Dados de comercialização do ano específico.
 - Scraping dinâmico com BeautifulSoup e fallback automático para CSV (`static_data/`).
 - Código documentado e pronto para testes via Postman.
 
@@ -30,6 +33,10 @@ API REST em Python/Flask para consulta de dados públicos da vitivinicultura do 
 - `GET /processamento/{ano}`
 - `GET /processamento/{tipo}/{ano}`
   - Tipos: `viniferas`, `americanas`, `mesa`, `semclass`
+
+### Comercialização
+- `GET /comercializacao`
+- `GET /comercializacao/{ano}`
 
 ## Exemplos de resposta
 
@@ -68,6 +75,21 @@ API REST em Python/Flask para consulta de dados públicos da vitivinicultura do 
   "dados": [
     {"cultivar": "TINTAS", "quantidade": 35881118},
     {"cultivar": "Alicante Bouschet", "quantidade": 4108858}
+  ]
+}
+```
+
+- `/comercializacao/2023`:
+```json
+{
+  "2023": [
+    {
+      "categoria": "VINHO FINO DE MESA",
+      "produtos": [
+        {"produto": "Tinto", "quantidade": 12450606},
+        {"produto": "Rosado", "quantidade": 1214583}
+      ]
+    }
   ]
 }
 ```
