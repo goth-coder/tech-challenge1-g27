@@ -60,7 +60,7 @@ def fetch_importacao_data(ano, tipo):
         Logs errors encountered during the request or parsing.
         Logs when falling back to loading data from a CSV file.
     """
-    subopcao = IMPORTACAO_SUBOPCOES.get(tipo) if tipo else 'subopt_01'
+    subopcao = IMPORTACAO_SUBOPCOES.get(tipo)  
     url = f"{EMBRAPA_BASE_URL}{ano}&opcao=opt_05&subopcao={subopcao}"
     try:
         logging.info(f"Iniciando requisição para URL: {url}")

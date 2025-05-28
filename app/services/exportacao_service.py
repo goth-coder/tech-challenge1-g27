@@ -61,10 +61,7 @@ def fetch_exportacao_data(ano, tipo):
         Logs errors encountered during the request or parsing.
         Logs when falling back to loading data from a CSV file.
     """ 
-    subopcao = EXPORTACAO_SUBOPCOES.get(tipo) if tipo else 'subopt_01'
-
-    print('\nSERA\n',subopcao,tipo,'\n')
-
+    subopcao = EXPORTACAO_SUBOPCOES.get(tipo)  
     url = f"{EMBRAPA_BASE_URL}{ano}&opcao=opt_06&subopcao={subopcao}"
     try:
         logging.info(f"Iniciando requisição para URL: {url}")
