@@ -60,7 +60,7 @@ def fetch_importacao_data(ano, tipo):
         Logs errors encountered during the request or parsing.
         Logs when falling back to loading data from a CSV file.
     """
-    subopcao = IMPORTACAO_SUBOPCOES.get(tipo) if tipo else 'Vinhos de mesa'
+    subopcao = IMPORTACAO_SUBOPCOES.get(tipo) if tipo else 'subopt_01'
     url = f"{EMBRAPA_BASE_URL}{ano}&opcao=opt_05&subopcao={subopcao}"
     try:
         logging.info(f"Iniciando requisição para URL: {url}")
@@ -126,7 +126,8 @@ def parse_importacao_data(soup, ano,tipo):
 
 
 if __name__ == "__main__":
+    "For debugging"
     result = fetch_importacao_data('2023', 'Vinhos de mesa')
     result2 = fetch_importacao_data_por_ano('2023')
-    # print(result)
+    print(result)
     print(result2)

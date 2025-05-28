@@ -81,8 +81,3 @@ def get_ano(ano):
 })
 def get_tipo_ano(tipo):
     return controller.get_tipo_ano(tipo)
-
-# Rotas
-## Para fazer download dos dados de importação
-## Query de acordo com o tipo contendo todos os anos
-## Query de acordo com o tipo e ano

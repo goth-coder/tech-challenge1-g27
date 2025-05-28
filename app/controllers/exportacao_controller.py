@@ -15,7 +15,7 @@ def get_ano(ano):
     Example:
         response = get_exportacao_ano(2020)
     """
-    if ano < 1970 or ano > 2023:
+    if ano < 1970 or ano > 2024:
         return jsonify({"error": "Ano deve ser entre 1970 e 2024"}), 400
     dados = fetch_exportacao_data_por_ano(ano)
     if not dados or not str(ano) in dados:
@@ -74,10 +74,7 @@ def get_tipo_ano(tipo):
     result = []
     for ano in anos:
         try:
-            print('DEBUG\n\n')
-            print(tipo,ano)
             data = fetch_exportacao_data(ano, tipo)
-            # print(data)
             if data:
                 result.extend(data)
         except Exception as e:

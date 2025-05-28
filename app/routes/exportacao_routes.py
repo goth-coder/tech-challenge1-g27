@@ -41,11 +41,11 @@ def get_ano(ano):
     'description': 'Requer autenticação JWT. Envie o token no header Authorization: Bearer <token>. Retorna dados de Exportação para o subtipo, podendo filtrar anos com query param "ano" ou "anos".',
     'parameters': [
         {
-            'name': 'subtipo',
+            'name': 'tipo',
             'in': 'path',
             'type': 'string',
             'required': True,
-            'description': 'Subtipo desejado (ex: Vinhos de mesa, Espumantes...)'
+            'description': 'Tipo desejado (ex: Vinhos de mesa, Espumantes...)'
         },
         {
             'name': 'anos',
@@ -80,8 +80,3 @@ def get_ano(ano):
 })
 def get_tipo_ano(tipo):
     return controller.get_tipo_ano(tipo)
-
-# Rotas
-## Para fazer download dos dados de Exportação
-## Query de acordo com o tipo contendo todos os anos
-## Query de acordo com o tipo e ano

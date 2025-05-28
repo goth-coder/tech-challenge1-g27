@@ -18,6 +18,8 @@ EXPORTACAO_SUBOPCOES = {
     'Uvas passas': 'subopt_04',
     'Suco de uva': 'subopt_05',
 }
+# Obs. Os nomes das subopções acima podem ser diferentes. O site da EMBRAPA ta down, então n deu pra ver.
+
 
 def fetch_exportacao_data_por_ano(ano):
     """
@@ -42,7 +44,7 @@ def fetch_exportacao_data_por_ano(ano):
     return {str(ano): result}
  
  
-def fetch_exportacao_data(ano, tipo,):
+def fetch_exportacao_data(ano, tipo):
     """
     Fetches product export data for a specific category and year from the Embrapa website.
     If the web request fails, falls back to loading data from a CSV file.
@@ -58,9 +60,11 @@ def fetch_exportacao_data(ano, tipo,):
         Logs the initiation of the web request.
         Logs errors encountered during the request or parsing.
         Logs when falling back to loading data from a CSV file.
-    """
-    subopcao = EXPORTACAO_SUBOPCOES.get(tipo)   
-    print('SERA\n\n',subopcao,tipo)
+    """ 
+    subopcao = EXPORTACAO_SUBOPCOES.get(tipo) if tipo else 'subopt_01'
+
+    print('\nSERA\n',subopcao,tipo,'\n')
+
     url = f"{EMBRAPA_BASE_URL}{ano}&opcao=opt_06&subopcao={subopcao}"
     try:
         logging.info(f"Iniciando requisição para URL: {url}")
@@ -125,6 +129,7 @@ def parse_exportacao_data(soup, ano,tipo):
 
 
 if __name__ == "__main__":
+    "For debugging"
     result = fetch_exportacao_data('2023', 'Vinhos de mesa')
     result2 = fetch_exportacao_data_por_ano('2023')
     print(result)
