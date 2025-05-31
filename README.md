@@ -16,6 +16,12 @@ API REST em Python/Flask para consulta de dados públicos da vitivinicultura do 
 - Endpoints de comercialização:
   - `GET /comercializacao` — Todos os dados de comercialização de 1970 a 2023.
   - `GET /comercializacao/{ano}` — Dados de comercialização do ano específico.
+- Endpoints de importação:
+  - `GET /importacao/{ano}` — Dados de todos os derivados importados do ano específico.
+  - `GET /importacao/{tipo}/{ano}` — Dados de um derivado específico importado no ano.
+- Endpoints de exportação:
+  - `GET /exportacao/{ano}` — Dados de todos os derivados exportados do ano específico.
+  - `GET /exportacao/{tipo}/{ano}` — Dados de um derivado específico exportado no ano.
 - Scraping dinâmico com BeautifulSoup e fallback automático para CSV (`static_data/`).
 - Código documentado e pronto para testes via Postman.
 
@@ -37,6 +43,16 @@ API REST em Python/Flask para consulta de dados públicos da vitivinicultura do 
 ### Comercialização
 - `GET /comercializacao`
 - `GET /comercializacao/{ano}`
+
+### Importação
+- `GET /importacao/{ano}`
+- `GET /importacao/{tipo}/{ano}`
+  - Tipos: `vinhos`, `espumantes`, `frescas`, `passas`, `suco`
+
+### Exportação
+- `GET /exportacao/{ano}`
+- `GET /exportacao/{tipo}/{ano}`
+  - Tipos: `vinhos`, `espumantes`, `frescas`, `suco`
 
 ## Exemplos de resposta
 
@@ -90,6 +106,55 @@ API REST em Python/Flask para consulta de dados públicos da vitivinicultura do 
         {"produto": "Rosado", "quantidade": 1214583}
       ]
     }
+  ]
+}
+```
+
+- `/importacao/2023`: 
+```json
+{
+  "2023": {
+    "vinhos": [{"pais": "Argentina", "quantidade": 12000000, "valor": 89456123}, ...],
+    "espumantes": [{"pais": "França", "quantidade": 1500000, "valor": 45632187}, ...],
+    "frescas": [{"pais": "Chile", "quantidade": 5200000, "valor": 12345678}],
+    "passas": [{"pais": "Turquia", "quantidade": 1800000, "valor": 8901234}],
+    "suco": [{"pais": "Argentina", "quantidade": 3200000, "valor": 15678901}]
+  }
+}
+```
+
+- `/importacao/vinhos/2023`:
+```json
+{
+  "ano": 2023,
+  "tipo": "vinhos",
+  "dados": [
+    {"pais": "Argentina", "quantidade": 12000000, "valor": 89456123},
+    {"pais": "Chile", "quantidade": 8500000, "valor": 65432198}
+  ]
+}
+```
+
+- `/exportacao/2023`:
+```json
+{
+  "2023": {
+    "vinhos": [{"pais": "Estados Unidos", "quantidade": 800000, "valor": 15234567}, ...],
+    "espumantes": [{"pais": "Reino Unido", "quantidade": 650000, "valor": 12456789}, ...],
+    "frescas": [{"pais": "Estados Unidos", "quantidade": 100000, "valor": 3456789}], 
+    "suco": [{"pais": "Paraguai", "quantidade": 2500000, "valor": 8765432}]
+  }
+} 
+```
+
+- `/exportacao/vinhos/2023`:
+```json
+{
+  "ano": 2023,
+  "tipo": "vinhos",
+  "dados": [
+    {"pais": "Estados Unidos", "quantidade": 800000, "valor": 15234567},
+    {"pais": "Reino Unido", "quantidade": 650000, "valor": 12456789}
   ]
 }
 ```
