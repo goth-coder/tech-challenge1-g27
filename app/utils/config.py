@@ -13,14 +13,3 @@ CSV_PATH_PROCESSAMENTO_AMERICANAS = os.path.join(STATIC_DATA_PATH, 'processament
 CSV_PATH_PROCESSAMENTO_MESA = os.path.join(STATIC_DATA_PATH, 'processamentoMesa.csv')
 CSV_PATH_PROCESSAMENTO_SEMCLASS = os.path.join(STATIC_DATA_PATH, 'processamentoSemclass.csv')
 
-CSV_PATH_IMPORTACAO_VINHOSMESA = os.path.join(STATIC_DATA_PATH, 'importacaoVinhosMesa.csv')
-CSV_PATH_IMPORTACAO_ESPUMANTES = os.path.join(STATIC_DATA_PATH, 'importacaoEspumantes.csv')
-CSV_PATH_IMPORTACAO_UVASFRESCAS = os.path.join(STATIC_DATA_PATH, 'importacaoUvasFrescas.csv')
-CSV_PATH_IMPORTACAO_UVASPASSAS = os.path.join(STATIC_DATA_PATH, 'importacaoUvasPassas.csv')
-CSV_PATH_IMPORTACAO_SUCO = os.path.join(STATIC_DATA_PATH, 'importacaoSuco.csv') 
-
-CSV_PATH_EXPORTACAO_VINHOSMESA = os.path.join(STATIC_DATA_PATH, 'exportacaoVinhosMesa.csv')
-CSV_PATH_EXPORTACAO_ESPUMANTES = os.path.join(STATIC_DATA_PATH, 'exportacaoEspumantes.csv')
-CSV_PATH_EXPORTACAO_UVASFRESCAS = os.path.join(STATIC_DATA_PATH, 'exportacaoUvasFrescas.csv')
-CSV_PATH_EXPORTACAO_UVASPASSAS = os.path.join(STATIC_DATA_PATH, 'exportacaoUvasPassas.csv')
-CSV_PATH_EXPORTACAO_SUCO = os.path.join(STATIC_DATA_PATH, 'exportacaoSuco.csv')
