@@ -9,7 +9,7 @@ auth_bp = Blueprint('auth', __name__)
 @swag_from({
     'tags': ['Autenticação'],
     'summary': 'Cadastro de novo usuário',
-    'description': 'Cria um novo usuário e retorna mensagem de sucesso.\n\nExemplo de uso via curl:\n\n    curl -X POST "http://localhost:5000/register" -H "Content-Type: application/json" -d "{\"username\": \"usuario\", \"password\": \"senha\"}"',
+    'description': 'Cria um novo usuário e retorna mensagem de sucesso.\n\nExemplo de uso via curl:\n\n    curl -X POST "http://localhost:5001/register" -H "Content-Type: application/json" -d "{\"username\": \"usuario\", \"password\": \"senha\"}"',
     'requestBody': {
         'required': True,
         'content': {
@@ -56,7 +56,7 @@ def register():
 @swag_from({
     'tags': ['Autenticação'],
     'summary': 'Login do usuário',
-    'description': 'Realiza login e retorna o token JWT.\n\nExemplo de uso via curl:\n\n    curl -X POST "http://localhost:5000/login" -H "Content-Type: application/json" -d "{\"username\": \"usuario\", \"password\": \"senha\"}"',
+    'description': 'Realiza login e retorna o token JWT.\n\nExemplo de uso via curl:\n\n    curl -X POST "http://localhost:5001/login" -H "Content-Type: application/json" -d "{\"username\": \"usuario\", \"password\": \"senha\"}"',
     'requestBody': {
         'required': True,
         'content': {
