@@ -1,52 +1,125 @@
 import os
-import logging
 import pandas as pd
-from app.utils.config import STATIC_DATA_PATH
+import csv
 from app.utils.config import (
-    CSV_PATH_IMPORTACAO_VINHOSMESA,
+    CSV_PATH_IMPORTACAO_VINHOS,
     CSV_PATH_IMPORTACAO_ESPUMANTES,
-    CSV_PATH_IMPORTACAO_UVASFRESCAS,
-    CSV_PATH_IMPORTACAO_UVASPASSAS,
-    CSV_PATH_IMPORTACAO_SUCO,
+    CSV_PATH_IMPORTACAO_FRESCAS,
+    CSV_PATH_IMPORTACAO_PASSAS,
+    CSV_PATH_IMPORTACAO_SUCO
 )
 
 CSV_MAP = {
-    'Vinhos de mesa': CSV_PATH_IMPORTACAO_VINHOSMESA,
-    'Espumantes': CSV_PATH_IMPORTACAO_ESPUMANTES,
-    'Uvas frescas': CSV_PATH_IMPORTACAO_UVASFRESCAS,
-    'Uvas passas': CSV_PATH_IMPORTACAO_UVASPASSAS,
-    'Suco de uva': CSV_PATH_IMPORTACAO_SUCO,
+    'vinhos': CSV_PATH_IMPORTACAO_VINHOS,
+    'espumantes': CSV_PATH_IMPORTACAO_ESPUMANTES,
+    'frescas': CSV_PATH_IMPORTACAO_FRESCAS,
+    'passas': CSV_PATH_IMPORTACAO_PASSAS,
+    'suco': CSV_PATH_IMPORTACAO_SUCO,
 }
 
-
-def save_importacao_csv(data, tipo):
+def load_importacao_csv(tipo, ano):
     """
-    Salva a lista de dicts de produção em um arquivo CSV.
-    
-    Args:
-        data (list): Lista de dicts [{categoria, produto, ano, valor}, ...]
-        path (str): Caminho para salvar o arquivo.
+    Carrega dados do CSV de fallback para o tipo e ano de importação.
+    Tenta detectar delimitador, mas faz fallback manual para tab e ponto e vírgula.
+    Retorna [{'pais': ..., 'quantidade': ..., 'valor': ...}] para o ano solicitado.
     """
-    path = CSV_MAP.get(tipo) 
-
-    df = pd.DataFrame(data) 
-    if os.path.exists(path):
-        logging.warning(f"Arquivo CSV para o tipo '{tipo}' já existe em '{path}'. Não será sobrescrito.")
-        return df
-    os.makedirs(os.path.dirname(path), exist_ok=True) 
-    df.to_csv(path, sep=';', index=False, encoding='utf-8')
-    print(f"Arquivo salvo em: {path}")
-    return df
-
-
-def load_importacao_csv(ano, tipo):
-    """
-    Carrega dados do CSV de fallback para o tipo e ano.
-    """  
     path = CSV_MAP.get(tipo)
     if not path or not os.path.exists(path):
-        logging.warning(f"Arquivo CSV para o tipo '{tipo}' não encontrado em '{path}'.")
         return []
-    df = pd.read_csv(path, sep=';', encoding='utf-8', engine='python', on_bad_lines='skip')
-    df = df[df['ano'] == int(ano)]
-    return df.to_dict(orient='records')
+    
+    delimiters = ['\t', ';', ',']
+    delimiter = None
+    
+    # Tenta detectar delimitador automaticamente
+    try:
+        with open(path, 'r', encoding='utf-8') as f:
+            sample = f.read(2048)
+            sniffer = csv.Sniffer()
+            delimiter = sniffer.sniff(sample).delimiter
+    except Exception:
+        for delim in delimiters:
+            try:
+                df = pd.read_csv(path, sep=delim, encoding='utf-8', engine='python', on_bad_lines='skip')
+                if df.shape[1] > 2:
+                    delimiter = delim
+                    break
+            except Exception:
+                continue
+    
+    if not delimiter:
+        try:
+            df = pd.read_csv(path, sep='\t', encoding='utf-8', engine='python', on_bad_lines='skip')
+            delimiter = '\t'
+        except Exception:
+            return []
+    
+    if delimiter:
+        df = pd.read_csv(path, sep=delimiter, encoding='utf-8', engine='python', on_bad_lines='skip')
+    
+    ano_str = str(ano)
+    
+    # Normaliza nomes de colunas
+    df.columns = [col.strip().lower() for col in df.columns]
+    
+    # Procura coluna país
+    pais_col = None
+    for col in df.columns:
+        if 'país' in col or 'pais' in col:
+            pais_col = col
+            break
+    
+    if not pais_col:
+        return []
+    
+    # Verifica se existem colunas para o ano (quantidade e valor)
+    # O CSV tem formato: País, ano_quantidade, ano_valor, ...
+    # As colunas se repetem: 1970, 1970, 1971, 1971, etc.
+    
+    result = []
+    columns = df.columns.tolist()
+    
+    # Procura pelas colunas do ano específico
+    ano_indices = []
+    for i, col in enumerate(columns):
+        if col == ano_str:
+            ano_indices.append(i)
+    
+    if len(ano_indices) < 2:
+        return []
+    
+    # Assume que a primeira ocorrência é quantidade e segunda é valor
+    quantidade_col = columns[ano_indices[0]]
+    valor_col = columns[ano_indices[1]]
+    
+    for _, row in df.iterrows():
+        quantidade = row.iloc[ano_indices[0]]
+        valor = row.iloc[ano_indices[1]]
+        
+        # Limpa valores
+        if isinstance(quantidade, str):
+            quantidade = quantidade.strip()
+            if quantidade.lower() in ['nd', '*', '', '-']:
+                quantidade = 0
+        
+        if isinstance(valor, str):
+            valor = valor.strip()
+            if valor.lower() in ['nd', '*', '', '-']:
+                valor = 0
+        
+        try:
+            quantidade = int(quantidade) if quantidade else 0
+        except:
+            quantidade = 0
+            
+        try:
+            valor = int(valor) if valor else 0
+        except:
+            valor = 0
+        
+        result.append({
+            'pais': row[pais_col],
+            'quantidade': quantidade,
+            'valor': valor
+        })
+    
+    return result

@@ -1,4 +1,5 @@
 # Serviço para scraping e fallback de processamento
+import requests
 from app.utils.config import EMBRAPA_BASE_URL
 from app.utils.processamento_csv_utils import load_processamento_csv
 from app.utils.parse_utils import parse_int

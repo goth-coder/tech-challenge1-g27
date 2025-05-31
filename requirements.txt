@@ -1,0 +1,10 @@
+beautifulsoup4==4.12.3
+flasgger==0.9.7.1
+flask==2.3.3
+flask-httpauth==4.8.0
+flask-jwt-extended==4.6.0
+flask-migrate==4.0.5
+flask-sqlalchemy==3.1.1
+pandas==2.2.2
+python-dotenv==1.0.1
+requests==2.31.0
