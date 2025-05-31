@@ -8,6 +8,8 @@ from app.routes.main_routes import main_bp
 from app.routes.producao_routes import producao_bp
 from app.routes.processamento_routes import processamento_bp
 from app.routes.comercializacao_routes import comercializacao_bp
+from app.routes.importacao_routes import importacao_bp
+from app.routes.exportacao_routes import exportacao_bp
 
 import os
 from dotenv import load_dotenv
@@ -48,8 +50,10 @@ def create_app():
     app.register_blueprint(producao_bp)
     app.register_blueprint(processamento_bp)
     app.register_blueprint(comercializacao_bp)
+    app.register_blueprint(importacao_bp)
+    app.register_blueprint(exportacao_bp)
     return app
 
 if __name__ == "__main__":
     app = create_app()
-    app.run(debug=True)
+    app.run(debug=True, port=5001)
