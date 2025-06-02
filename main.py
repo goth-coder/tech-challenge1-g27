@@ -11,7 +11,6 @@ from app.routes.comercializacao_routes import comercializacao_bp
 from app.routes.importacao_routes import importacao_bp
 from app.routes.exportacao_routes import exportacao_bp
 from app.utils.swagger_config import SWAGGER_CONFIG
-
 import os
 from dotenv import load_dotenv
 
@@ -39,6 +38,7 @@ def create_app():
     app.register_blueprint(exportacao_bp)
     return app
 
+app = create_app()
+
 if __name__ == "__main__":
-    app = create_app()
     app.run(debug=True, port=5001)
