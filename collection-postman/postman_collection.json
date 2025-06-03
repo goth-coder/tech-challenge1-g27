@@ -1,0 +1,323 @@
+{
+	"info": {
+		"_postman_id": "embrapa-vitivinicultura-api",
+		"name": "API Embrapa Vitivinicultura",
+		"description": "Collection para testar todos os endpoints da API Embrapa Vitivinicultura com autenticação JWT",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{jwt_token}}",
+				"type": "string"
+			}
+		]
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:5001",
+			"type": "string"
+		},
+		{
+			"key": "jwt_token",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Register User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"testuser\",\n    \"password\": \"testpassword\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/register",
+							"host": ["{{base_url}}"],
+							"path": ["register"]
+						}
+					}
+				},
+				{
+					"name": "Login User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    pm.collectionVariables.set('jwt_token', response.access_token);",
+									"    console.log('JWT Token saved:', response.access_token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"testuser\",\n    \"password\": \"testpassword\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/login",
+							"host": ["{{base_url}}"],
+							"path": ["login"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Produção",
+			"item": [
+				{
+					"name": "Get Todos os Dados de Produção",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/producao",
+							"host": ["{{base_url}}"],
+							"path": ["producao"]
+						}
+					}
+				},
+				{
+					"name": "Get Produção por Ano",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/producao/2023",
+							"host": ["{{base_url}}"],
+							"path": ["producao", "2023"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Processamento",
+			"item": [
+				{
+					"name": "Get Processamento por Ano",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/processamento/2023",
+							"host": ["{{base_url}}"],
+							"path": ["processamento", "2023"]
+						}
+					}
+				},
+				{
+					"name": "Get Processamento por Tipo e Ano",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/processamento/viniferas/2023",
+							"host": ["{{base_url}}"],
+							"path": ["processamento", "viniferas", "2023"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Comercialização",
+			"item": [
+				{
+					"name": "Get Todos os Dados de Comercialização",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/comercializacao",
+							"host": ["{{base_url}}"],
+							"path": ["comercializacao"]
+						}
+					}
+				},
+				{
+					"name": "Get Comercialização por Ano",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/comercializacao/2023",
+							"host": ["{{base_url}}"],
+							"path": ["comercializacao", "2023"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Importação",
+			"item": [
+				{
+					"name": "Get Importação por Ano",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/importacao/2023",
+							"host": ["{{base_url}}"],
+							"path": ["importacao", "2023"]
+						}
+					}
+				},
+				{
+					"name": "Get Importação Vinhos",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/importacao/vinhos/2023",
+							"host": ["{{base_url}}"],
+							"path": ["importacao", "vinhos", "2023"]
+						}
+					}
+				},
+				{
+					"name": "Get Importação Espumantes",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/importacao/espumantes/2023",
+							"host": ["{{base_url}}"],
+							"path": ["importacao", "espumantes", "2023"]
+						}
+					}
+				},
+				{
+					"name": "Get Importação Frescas",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/importacao/frescas/2023",
+							"host": ["{{base_url}}"],
+							"path": ["importacao", "frescas", "2023"]
+						}
+					}
+				},
+				{
+					"name": "Get Importação Passas",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/importacao/passas/2023",
+							"host": ["{{base_url}}"],
+							"path": ["importacao", "passas", "2023"]
+						}
+					}
+				},
+				{
+					"name": "Get Importação Suco",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/importacao/suco/2023",
+							"host": ["{{base_url}}"],
+							"path": ["importacao", "suco", "2023"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Exportação",
+			"item": [
+				{
+					"name": "Get Exportação por Ano",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/exportacao/2023",
+							"host": ["{{base_url}}"],
+							"path": ["exportacao", "2023"]
+						}
+					}
+				},
+				{
+					"name": "Get Exportação Vinhos",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/exportacao/vinhos/2023",
+							"host": ["{{base_url}}"],
+							"path": ["exportacao", "vinhos", "2023"]
+						}
+					}
+				},
+				{
+					"name": "Get Exportação Espumantes",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/exportacao/espumantes/2023",
+							"host": ["{{base_url}}"],
+							"path": ["exportacao", "espumantes", "2023"]
+						}
+					}
+				},
+				{
+					"name": "Get Exportação Frescas",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/exportacao/frescas/2023",
+							"host": ["{{base_url}}"],
+							"path": ["exportacao", "frescas", "2023"]
+						}
+					}
+				},
+				{
+					"name": "Get Exportação Suco",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/exportacao/suco/2023",
+							"host": ["{{base_url}}"],
+							"path": ["exportacao", "suco", "2023"]
+						}
+					}
+				}
+			]
+		}
+	]
+}
