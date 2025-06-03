@@ -1,7 +1,8 @@
 # Serviço para scraping e fallback de processamento
 import requests
 from app.utils.config import EMBRAPA_BASE_URL
-from app.utils.processamento_csv_utils import load_processamento_csv
+from app.utils.config import PROCESS_CSV_MAP as CSV_MAP
+from app.utils.csv_utils import load_generic_csv
 from app.utils.parse_utils import parse_int
 from bs4 import BeautifulSoup
 import requests
@@ -35,7 +36,14 @@ def fetch_processamento_data(ano, tipo):
         soup = BeautifulSoup(resp.text, 'html.parser')
         return parse_processamento_html(soup)
     except Exception:
-        return load_processamento_csv(tipo, ano)
+        return load_generic_csv(
+                tipo=tipo,
+                ano=ano,
+                csv_map=CSV_MAP,
+                id_col_name='cultivar',
+                value_col_name=None,
+                output_keys={'id': 'produto', 'qtd': 'quantidade'}
+            )
 
 def parse_processamento_html(soup):
     """

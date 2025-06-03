@@ -13,11 +13,7 @@ def get_importacao_ano(ano):
         if not data or not data.get(str(ano)):
             return jsonify({'error': 'Dados não encontrados para o ano informado'}), 404
         
-        return jsonify({
-            'ano': ano,
-            'dados': data[str(ano)],
-            'fonte': 'Embrapa - Sistema de dados vitivinícolas'
-        }), 200
+        return jsonify(data), 200
     
     except Exception as e:
         return jsonify({'error': f'Erro interno do servidor: {str(e)}'}), 500
@@ -40,12 +36,7 @@ def get_importacao_tipo_ano(tipo, ano):
         if not data:
             return jsonify({'error': 'Dados não encontrados para o tipo e ano informados'}), 404
         
-        return jsonify({
-            'ano': ano,
-            'tipo': tipo,
-            'dados': data,
-            'fonte': 'Embrapa - Sistema de dados vitivinícolas'
-        }), 200
+        return jsonify({'ano': ano, 'tipo': tipo, 'dados': data}), 200
     
     except Exception as e:
         return jsonify({'error': f'Erro interno do servidor: {str(e)}'}), 500

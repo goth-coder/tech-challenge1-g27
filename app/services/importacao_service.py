@@ -1,7 +1,8 @@
 # Serviço para scraping e fallback de importação
 import requests
 from app.utils.config import EMBRAPA_BASE_URL
-from app.utils.importacao_csv_utils import load_importacao_csv
+from app.utils.config import IMPORT_CSV_MAP as CSV_MAP
+from app.utils.csv_utils import load_generic_csv
 from app.utils.parse_utils import parse_int
 from bs4 import BeautifulSoup
 
@@ -32,12 +33,19 @@ def fetch_importacao_data(ano, tipo):
     
     url = f"{EMBRAPA_BASE_URL}{ano}&opcao=opt_05&subopcao={subopcao}"
     try:
-        resp = requests.get(url, timeout=10)
+        resp = requests.get(url, timeout=10) 
         resp.raise_for_status()
-        soup = BeautifulSoup(resp.text, 'html.parser')
+        soup = BeautifulSoup(resp.text, 'html.parser') 
         return parse_importacao_html(soup)
-    except Exception:
-        return load_importacao_csv(tipo, ano)
+    except Exception: 
+        return load_generic_csv(
+                tipo=tipo,
+                ano=ano,
+                csv_map=CSV_MAP,
+                id_col_name='pais',
+                value_col_name='valor',
+                output_keys={'id': 'pais', 'qtd': 'quantidade', 'val': 'valor'}
+            )
 
 def parse_importacao_html(soup):
     """

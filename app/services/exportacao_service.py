@@ -1,7 +1,8 @@
 # Serviço para scraping e fallback de exportação
 import requests
 from app.utils.config import EMBRAPA_BASE_URL
-from app.utils.exportacao_csv_utils import load_exportacao_csv
+from app.utils.config import EXPORT_CSV_MAP as CSV_MAP
+from app.utils.csv_utils import load_generic_csv
 from app.utils.parse_utils import parse_int
 from bs4 import BeautifulSoup
 
@@ -31,12 +32,19 @@ def fetch_exportacao_data(ano, tipo):
     
     url = f"{EMBRAPA_BASE_URL}{ano}&opcao=opt_06&subopcao={subopcao}"
     try:
-        resp = requests.get(url, timeout=10)
+        resp = requests.get(url, timeout=10) 
         resp.raise_for_status()
         soup = BeautifulSoup(resp.text, 'html.parser')
         return parse_exportacao_html(soup)
     except Exception:
-        return load_exportacao_csv(tipo, ano)
+        return load_generic_csv(
+                tipo=tipo,
+                ano=ano,
+                csv_map=CSV_MAP,
+                id_col_name='pais',
+                value_col_name='valor',
+                output_keys={'id': 'pais', 'qtd': 'quantidade', 'val': 'valor'}
+            )
 
 def parse_exportacao_html(soup):
     """
