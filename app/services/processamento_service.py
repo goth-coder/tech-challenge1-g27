@@ -20,9 +20,19 @@ def fetch_processamento_data_por_ano(ano):
     Busca dados de todas as subopções de processamento para o ano informado.
     """
     result = {}
+    fonte_final = "Dados internos - Embrapa .csv"  # Assume CSV por padrão
+    
     for tipo, subopcao in PROCESSAMENTO_SUBOPCOES.items():
-        result[tipo] = fetch_processamento_data(ano, tipo)
-    return {str(ano): result}
+        data_with_source = fetch_processamento_data(ano, tipo)
+        result[tipo] = data_with_source["dados"]
+        # Se algum dos dados vier do site, define fonte como site
+        if data_with_source["fonte"] == "Embrapa - Sistema de dados vitivinícolas":
+            fonte_final = "Embrapa - Sistema de dados vitivinícolas"
+    
+    return {
+        str(ano): result,
+        "fonte": fonte_final
+    }
 
 def fetch_processamento_data(ano, tipo):
     """
@@ -34,9 +44,13 @@ def fetch_processamento_data(ano, tipo):
         resp = requests.get(url, timeout=10)
         resp.raise_for_status()
         soup = BeautifulSoup(resp.text, 'html.parser')
-        return parse_processamento_html(soup)
+        data = parse_processamento_html(soup)
+        return {
+            "dados": data,
+            "fonte": "Embrapa - Sistema de dados vitivinícolas"
+        }
     except Exception:
-        return load_generic_csv(
+        csv_data = load_generic_csv(
                 tipo=tipo,
                 ano=ano,
                 csv_map=CSV_MAP,
@@ -44,6 +58,10 @@ def fetch_processamento_data(ano, tipo):
                 value_col_name=None,
                 output_keys={'id': 'produto', 'qtd': 'quantidade'}
             )
+        return {
+            "dados": csv_data,
+            "fonte": "Dados internos - Embrapa .csv"
+        }
 
 def parse_processamento_html(soup):
     """
