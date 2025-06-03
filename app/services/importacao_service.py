@@ -19,9 +19,19 @@ def fetch_importacao_data_por_ano(ano):
     Busca dados de todas as subopções de importação para o ano informado.
     """
     result = {}
+    fonte_final = "Dados internos - Embrapa .csv"  # Assume CSV por padrão
+    
     for tipo, subopcao in IMPORTACAO_SUBOPCOES.items():
-        result[tipo] = fetch_importacao_data(ano, tipo)
-    return {str(ano): result}
+        data_with_source = fetch_importacao_data(ano, tipo)
+        result[tipo] = data_with_source["dados"]
+        # Se algum dos dados vier do site, define fonte como site
+        if data_with_source["fonte"] == "Embrapa - Sistema de dados vitivinícolas":
+            fonte_final = "Embrapa - Sistema de dados vitivinícolas"
+    
+    return {
+        str(ano): result,
+        "fonte": fonte_final
+    }
 
 def fetch_importacao_data(ano, tipo):
     """
@@ -29,16 +39,23 @@ def fetch_importacao_data(ano, tipo):
     """
     subopcao = IMPORTACAO_SUBOPCOES.get(tipo)
     if not subopcao:
-        return []
+        return {
+            "dados": [],
+            "fonte": "Dados internos - Embrapa .csv"
+        }
     
     url = f"{EMBRAPA_BASE_URL}{ano}&opcao=opt_05&subopcao={subopcao}"
     try:
         resp = requests.get(url, timeout=10) 
         resp.raise_for_status()
         soup = BeautifulSoup(resp.text, 'html.parser') 
-        return parse_importacao_html(soup)
+        data = parse_importacao_html(soup)
+        return {
+            "dados": data,
+            "fonte": "Embrapa - Sistema de dados vitivinícolas"
+        }
     except Exception: 
-        return load_generic_csv(
+        csv_data = load_generic_csv(
                 tipo=tipo,
                 ano=ano,
                 csv_map=CSV_MAP,
@@ -46,6 +63,10 @@ def fetch_importacao_data(ano, tipo):
                 value_col_name='valor',
                 output_keys={'id': 'pais', 'qtd': 'quantidade', 'val': 'valor'}
             )
+        return {
+            "dados": csv_data,
+            "fonte": "Dados internos - Embrapa .csv"
+        }
 
 def parse_importacao_html(soup):
     """

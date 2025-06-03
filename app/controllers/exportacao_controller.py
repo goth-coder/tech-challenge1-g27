@@ -22,8 +22,7 @@ def get_exportacao_tipo_ano(tipo, ano):
     """
     Controller para retornar dados de uma subopção específica de exportação para um ano.
     """
-    if ano < 1970 or ano > 2024:
-        return jsonify({'error': 'Ano deve estar entre 1970 e 2024'}), 400
+    if ano < 1970 or ano > 2024:        return jsonify({'error': 'Ano deve estar entre 1970 e 2024'}), 400
     
     tipos_validos = ['vinhos', 'espumantes', 'frescas', 'suco']
     if tipo not in tipos_validos:
@@ -32,14 +31,15 @@ def get_exportacao_tipo_ano(tipo, ano):
         }), 400
     
     try:
-        data = fetch_exportacao_data(ano, tipo)
-        if not data:
+        data_with_source = fetch_exportacao_data(ano, tipo)
+        if not data_with_source or not data_with_source.get("dados"):
             return jsonify({'error': 'Dados não encontrados para o tipo e ano informados'}), 404
         
         return jsonify({
             'ano': ano,
             'tipo': tipo,
-            'dados': data
+            'dados': data_with_source["dados"],
+            'fonte': data_with_source["fonte"]
         }), 200
     
     except Exception as e:

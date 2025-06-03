@@ -32,11 +32,16 @@ def get_importacao_tipo_ano(tipo, ano):
         }), 400
     
     try:
-        data = fetch_importacao_data(ano, tipo)
-        if not data:
+        data_with_source = fetch_importacao_data(ano, tipo)
+        if not data_with_source or not data_with_source.get("dados"):
             return jsonify({'error': 'Dados não encontrados para o tipo e ano informados'}), 404
         
-        return jsonify({'ano': ano, 'tipo': tipo, 'dados': data}), 200
+        return jsonify({
+            'ano': ano, 
+            'tipo': tipo, 
+            'dados': data_with_source["dados"],
+            'fonte': data_with_source["fonte"]
+        }), 200
     
     except Exception as e:
         return jsonify({'error': f'Erro interno do servidor: {str(e)}'}), 500

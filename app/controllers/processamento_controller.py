@@ -12,7 +12,12 @@ def get_processamento_ano(ano):
 def get_processamento_tipo_ano(tipo, ano):
     if ano < 1970 or ano > 2023:
         return jsonify({"error": "Ano deve ser entre 1970 e 2023"}), 400
-    dados = fetch_processamento_data(ano, tipo)
-    if not dados:
+    data_with_source = fetch_processamento_data(ano, tipo)
+    if not data_with_source or not data_with_source.get("dados"):
         return jsonify({"error": f"Dados para o tipo {tipo} no ano {ano} não encontrados"}), 404
-    return jsonify({"ano": ano, "tipo": tipo, "dados": dados})
+    return jsonify({
+        "ano": ano, 
+        "tipo": tipo, 
+        "dados": data_with_source["dados"],
+        "fonte": data_with_source["fonte"]
+    })

@@ -10,7 +10,7 @@ def fetch_producao_data():
     """
     Scrape todos os blocos de produção do site da Embrapa para o ano informado.
     Se falhar, faz fallback para o CSV, retornando todos os dados (se year=None) ou apenas do ano (se year informado).
-    Retorna uma lista de dicts: [{categoria, produto, ano, valor}]
+    Retorna uma lista de dicts: [{categoria, produto, ano, valor}] com campo 'fonte'
     """
     try:
         anos = list(range(1970, 2024))
@@ -27,14 +27,21 @@ def fetch_producao_data():
                             'ano': str(ano),
                             'valor': item['quantidade']
                         })
-        return result
+        return {
+            "dados": result,
+            "fonte": "Embrapa - Sistema de dados vitivinícolas"
+        }
     except Exception:
-        return load_csv_fallback(year=None, agrupado=False, csv_path=CSV_PATH_PRODUCAO)
+        csv_data = load_csv_fallback(year=None, agrupado=False, csv_path=CSV_PATH_PRODUCAO)
+        return {
+            "dados": csv_data,
+            "fonte": "Dados internos - Embrapa .csv"
+        }
 
 def fetch_producao_data_por_ano(ano):
     """
     Scraping dinâmico por ano, agrupando produtos por categoria, e fallback para CSV se scraping falhar OU se scraping retornar lista vazia.
-    Retorna: {"ano": [ {"categoria": ..., "produtos": [ {"produto": ..., "quantidade": ... }, ... ] }, ... ] }
+    Retorna: {"ano": [ {"categoria": ..., "produtos": [ {"produto": ..., "quantidade": ... }, ... ] }, ... ], "fonte": "..."}
     """
     url = f"{EMBRAPA_BASE_URL}{ano}&opcao=opt_02"
     try:
@@ -79,7 +86,12 @@ def fetch_producao_data_por_ano(ano):
 
         if not dados[str(ano)]:
             raise Exception("Scraping retornou vazio")
+        
+        dados["fonte"] = "Embrapa - Sistema de dados vitivinícolas"
         return dados
 
     except Exception:
-        return load_csv_fallback(year=ano, agrupado=True, csv_path=CSV_PATH_PRODUCAO)
+        csv_data = load_csv_fallback(year=ano, agrupado=True, csv_path=CSV_PATH_PRODUCAO)
+        if csv_data:
+            csv_data["fonte"] = "Dados internos - Embrapa .csv"
+        return csv_data
