@@ -8,7 +8,7 @@ from app.routes.processamento_routes import processamento_bp
 from app.routes.comercializacao_routes import comercializacao_bp
 from app.routes.importacao_routes import importacao_bp
 from app.routes.exportacao_routes import exportacao_bp
-
+from app.utils.swagger_config import SWAGGER_CONFIG
 import os
 from dotenv import load_dotenv
 
@@ -16,23 +16,7 @@ load_dotenv()
 
 def create_app():
     app = Flask(__name__)
-    app.config['SWAGGER'] = {
-        'title': 'API Embrapa Vitivinicultura',
-        'uiversion': 3,
-        'openapi': '3.0.2',
-        'components': {
-            'securitySchemes': {
-                'BearerAuth': {
-                    'type': 'http',
-                    'scheme': 'bearer',
-                    'bearerFormat': 'JWT',
-                    'description': 'JWT Authorization header using the Bearer scheme. Example: "Bearer {token}"'
-                }
-            }
-        },
-        'security': [{'BearerAuth': []}],
-        'specs_route': '/apidocs/'
-    }
+    app.config['SWAGGER'] = SWAGGER_CONFIG
     Swagger(app, template=app.config['SWAGGER'])
     app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'super-secret')
     jwt.init_app(app)
@@ -45,6 +29,7 @@ def create_app():
     app.register_blueprint(exportacao_bp)
     return app
 
+app = create_app()
+
 if __name__ == "__main__":
-    app = create_app()
     app.run(debug=True, port=5001)
