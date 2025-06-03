@@ -66,7 +66,8 @@ API REST em Python/Flask para consulta de dados públicos da vitivinicultura do 
         {"produto": "Tinto", "quantidade": 139320884},
         {"produto": "Branco", "quantidade": 27910299}
       ]
-    }
+    },
+  "fonte": "Embrapa - Sistema de dados vitivinícolas"
   ]
 }
 ```
@@ -79,7 +80,8 @@ API REST em Python/Flask para consulta de dados públicos da vitivinicultura do 
     "americanas": [ {"cultivar": "BORDO", "quantidade": 154310837}, ... ],
     "mesa": [ {"cultivar": "TINTAS", "quantidade": 175030}, ... ],
     "semclass": [ {"cultivar": "Sem classificação", "quantidade": 0} ]
-  }
+  },
+  "fonte": "Embrapa - Sistema de dados vitivinícolas"
 }
 ```
 
@@ -91,7 +93,8 @@ API REST em Python/Flask para consulta de dados públicos da vitivinicultura do 
   "dados": [
     {"cultivar": "TINTAS", "quantidade": 35881118},
     {"cultivar": "Alicante Bouschet", "quantidade": 4108858}
-  ]
+  ],
+  "fonte": "Embrapa - Sistema de dados vitivinícolas"
 }
 ```
 
@@ -106,7 +109,8 @@ API REST em Python/Flask para consulta de dados públicos da vitivinicultura do 
         {"produto": "Rosado", "quantidade": 1214583}
       ]
     }
-  ]
+  ],
+  "fonte": "Embrapa - Sistema de dados vitivinícolas"
 }
 ```
 
@@ -119,7 +123,8 @@ API REST em Python/Flask para consulta de dados públicos da vitivinicultura do 
     "frescas": [{"pais": "Chile", "quantidade": 5200000, "valor": 12345678}],
     "passas": [{"pais": "Turquia", "quantidade": 1800000, "valor": 8901234}],
     "suco": [{"pais": "Argentina", "quantidade": 3200000, "valor": 15678901}]
-  }
+  },
+  "fonte": "Embrapa - Sistema de dados vitivinícolas"
 }
 ```
 
@@ -131,7 +136,8 @@ API REST em Python/Flask para consulta de dados públicos da vitivinicultura do 
   "dados": [
     {"pais": "Argentina", "quantidade": 12000000, "valor": 89456123},
     {"pais": "Chile", "quantidade": 8500000, "valor": 65432198}
-  ]
+  ],
+  "fonte": "Embrapa - Sistema de dados vitivinícolas"
 }
 ```
 
@@ -143,7 +149,8 @@ API REST em Python/Flask para consulta de dados públicos da vitivinicultura do 
     "espumantes": [{"pais": "Reino Unido", "quantidade": 650000, "valor": 12456789}, ...],
     "frescas": [{"pais": "Estados Unidos", "quantidade": 100000, "valor": 3456789}], 
     "suco": [{"pais": "Paraguai", "quantidade": 2500000, "valor": 8765432}]
-  }
+  },
+  "fonte": "Embrapa - Sistema de dados vitivinícolas"
 } 
 ```
 
@@ -155,7 +162,8 @@ API REST em Python/Flask para consulta de dados públicos da vitivinicultura do 
   "dados": [
     {"pais": "Estados Unidos", "quantidade": 800000, "valor": 15234567},
     {"pais": "Reino Unido", "quantidade": 650000, "valor": 12456789}
-  ]
+  ],
+  "fonte": "Embrapa - Sistema de dados vitivinícolas"
 }
 ```
 
@@ -175,7 +183,7 @@ API REST em Python/Flask para consulta de dados públicos da vitivinicultura do 
 ## Observações
 - O scraping utiliza BeautifulSoup e segue a estrutura do HTML oficial da Embrapa.
 - Se o scraping falhar, os dados são carregados automaticamente dos arquivos CSV.
-- O projeto está pronto para deploy na Vercel.
+- O projeto está pronto para deploy no Render.
 
 ## Estrutura esperada
 
@@ -188,7 +196,7 @@ API REST em Python/Flask para consulta de dados públicos da vitivinicultura do 
 │   ├── services/
 │   └── utils/
 ├── static_data/
-│   └── *.csv
+├── collection-postman/
 ├── .env
 ├── requirements.txt
 ├── main.py
@@ -197,3 +205,8 @@ API REST em Python/Flask para consulta de dados públicos da vitivinicultura do 
 
 ## Licença
 MIT
+
+## Links úteis
+
+- Repositório: [GitHub](https://github.com/fiap-tech-challenges/tech-challenge1-g27)
+- Deploy no Render: [Render](https://tech-challenge1-g27.onrender.com/)
